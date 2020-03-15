@@ -1,4 +1,4 @@
-# Gringo Contributing Guide line
+# Contributing Guide line
 
 ## Git Rules
 

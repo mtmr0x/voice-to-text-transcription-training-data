@@ -2,7 +2,7 @@
 
 ## Contributing
 
-For details with How to contributing please go to our documentation [clicking here](https://github.com/gringo-porrada/gringo-backend/blob/staging/CONTRIBUTING.md).
+For details with How to contributing please go to our documentation [clicking here](https://github.com/mtmr0x/voice-to-text-transcription-training-data/blob/master/CONTRIBUTING.md).
 
 ## Installation and set up
 
@@ -42,24 +42,12 @@ Locate the `.env.sample` file in the root folder and copy and paste it into a fi
 **Simple compile and start**
 
 ```sh
-npm run start
+npm run start path-to-file
 ```
 
-**Compiling**
+Example: there are static files generated for examples at `static` folder. You may simply run:
 
 ```sh
-npm run compile
-```
-
-**Run the typescript version**
-
-```sh
-npm run run-ts
-```
-
-**Run using Nodemon (good for development and debugging)**
-
-```sh
-npm run nodemon-server
+npm run start ./static/input2.txt
 ```
 
