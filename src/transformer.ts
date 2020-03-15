@@ -59,7 +59,5 @@ export default function (data:string):[Array<User>, Array<Task>] {
     });
   }
 
-  console.log('\n\n', users);
-  console.log('\n\n', tasks, '\n\n');
   return [users, tasks];
 }

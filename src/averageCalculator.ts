@@ -2,16 +2,19 @@ import logger from './logger';
 
 import { User } from './models/User';
 import { Task } from './models/Task';
+import { AverageByCountry } from './models/AverageByCountry';
+import { AverageByUser } from './models/AverageByUser';
 
-export default function (users:Array<User>, tasks:Array<Task>):[Array<{[key:number]:number}>, Array<{[key:string]:number}>] {
+export default function (users:Array<User>, tasks:Array<Task>):[Array<AverageByUser>, Array<AverageByCountry>] {
   const log =  logger({ context: 'averageCalculator' });
   log.info('initializing');
 
-  type TimeAgregatorByUser = {
+  type TimeAggregatorByUser = {
     [key:number]: Array<number>
   }
 
-  const timeAgregatorByUser:TimeAgregatorByUser = tasks.reduce((acc:TimeAgregatorByUser, curr, i, array) => {
+  log.info('aggregating time of tasks');
+  const timeAggregatorByUser:TimeAggregatorByUser = tasks.reduce((acc:TimeAggregatorByUser, curr, i, array) => {
     if (acc[curr.userId]) {
       acc[curr.userId].push(curr.spentTime);
       return acc;
@@ -22,38 +25,35 @@ export default function (users:Array<User>, tasks:Array<Task>):[Array<{[key:numb
     return acc;
   }, {});
 
-  type TimeAverage = {
-    [key:number]: number
-  }
+  const timeAverageByUser:Array<AverageByUser> = [];
+  const timeAverageByCountry:Array<AverageByCountry> = [];
 
-  const timeAverageByUser:Array<{[key:number]:number}> = [];
-  const timeAverageByCountry:Array<{[key:string]:number}> = [];
-
+  log.info('looping into users to get all average times');
   for (let i = 0; users.length > i; i++) {
     const current =  users[i];
-    const objUser:{[key:number]: number} = {};
-    const objCountry:{[key:string]: number} = {};
-    if (timeAgregatorByUser[current.id]) {
-      const sum = timeAgregatorByUser[current.id].reduce((a, b) => {
+    log.info(`looping for user of id ${current.id}`);
+    let objUser:AverageByUser;
+    let objCountry:AverageByCountry;
+    if (timeAggregatorByUser[current.id]) {
+      const sum = timeAggregatorByUser[current.id].reduce((a, b) => {
         return a + b;
       }, 0)
-      const average = sum / timeAgregatorByUser[current.id].length;
-      objUser[current.id] = average;
-      objCountry[current.country] = average;
+      const average = sum / timeAggregatorByUser[current.id].length;
+      objUser = { id: current.id, average }
+      objCountry = { country: current.country, average };
 
       timeAverageByUser.push(objUser);
       timeAverageByCountry.push(objCountry);
       continue;
     }
-    objUser[current.id] = 0;
-    objCountry[current.country] = 0;
+    objUser = { id: current.id, average: 0 }
+    objCountry = { country: current.country, average: 0 };
 
     timeAverageByUser.push(objUser);
     timeAverageByCountry.push(objCountry);
   }
 
-  console.log('\n\n', timeAverageByUser, '\n\n');
-  console.log('\n\n', timeAverageByCountry, '\n\n');
-
+  log.info('Returning to scope above');
   return [timeAverageByUser, timeAverageByCountry];
 }
+
