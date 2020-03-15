@@ -13,8 +13,12 @@ export default function (users:Array<User>, tasks:Array<Task>):[Array<AverageByU
     [key:number]: Array<number>
   }
 
-  log.info('aggregating time of tasks');
-  const timeAggregatorByUser:TimeAggregatorByUser = tasks.reduce((acc:TimeAggregatorByUser, curr, i, array) => {
+  type TimeAggregatorByCountry = {
+    [key:string]: Array<number>
+  }
+
+  log.info('aggregating time of tasks by user');
+  const timeAggregatorByUser:TimeAggregatorByUser = tasks.reduce((acc:TimeAggregatorByUser, curr) => {
     if (acc[curr.userId]) {
       acc[curr.userId].push(curr.spentTime);
       return acc;
@@ -22,6 +26,18 @@ export default function (users:Array<User>, tasks:Array<Task>):[Array<AverageByU
 
     acc[curr.userId] = [curr.spentTime];
 
+    return acc;
+  }, {});
+
+  log.info('aggregating time of tasks by country');
+  const timeAggregatorByCountry = users.reduce((acc:TimeAggregatorByCountry, curr) => {
+    const currentUserSpentTime = tasks.filter(t => t.userId === curr.id).map(t => t.spentTime);
+    if (acc[curr.country]) {
+      currentUserSpentTime.map(c => acc[curr.country].push(c));
+      return acc;
+    }
+    acc[curr.country] = [];
+    currentUserSpentTime.map(c => acc[curr.country].push(c));
     return acc;
   }, {});
 
@@ -33,23 +49,41 @@ export default function (users:Array<User>, tasks:Array<Task>):[Array<AverageByU
     const current =  users[i];
     log.info(`looping for user of id ${current.id}`);
     let objUser:AverageByUser;
-    let objCountry:AverageByCountry;
     if (timeAggregatorByUser[current.id]) {
       const sum = timeAggregatorByUser[current.id].reduce((a, b) => {
         return a + b;
       }, 0)
       const average = sum / timeAggregatorByUser[current.id].length;
       objUser = { id: current.id, average: (average).toFixed(2) }
-      objCountry = { country: current.country, average: (average).toFixed(2) };
 
       timeAverageByUser.push(objUser);
-      timeAverageByCountry.push(objCountry);
       continue;
     }
     objUser = { id: current.id, average: (0).toFixed(2) }
-    objCountry = { country: current.country, average: (0).toFixed(2) };
 
     timeAverageByUser.push(objUser);
+  }
+
+  log.info('looping into tasks to get all average times');
+  const timeAggregatorByCountryKeys = Object.keys(timeAggregatorByCountry);
+
+  for (let i = 0; timeAggregatorByCountryKeys.length > i; i++) {
+    const currentList:Array<number> = timeAggregatorByCountry[timeAggregatorByCountryKeys[i]];
+    const currentCountry:string = timeAggregatorByCountryKeys[i];
+
+    let objCountry:AverageByCountry;
+
+    if (timeAggregatorByCountry[currentCountry].length) {
+      const sum = currentList.reduce((a, b) => {
+        return a + b;
+      }, 0)
+      const average = sum / currentList.length;
+      objCountry = { country: currentCountry, average: (average).toFixed(2) };
+      timeAverageByCountry.push(objCountry);
+      continue;
+    }
+
+    objCountry = { country: currentCountry, average: (0).toFixed(2) };
     timeAverageByCountry.push(objCountry);
   }
 
