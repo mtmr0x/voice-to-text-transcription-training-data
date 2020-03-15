@@ -39,15 +39,15 @@ export default function (users:Array<User>, tasks:Array<Task>):[Array<AverageByU
         return a + b;
       }, 0)
       const average = sum / timeAggregatorByUser[current.id].length;
-      objUser = { id: current.id, average }
-      objCountry = { country: current.country, average };
+      objUser = { id: current.id, average: (average).toFixed(2) }
+      objCountry = { country: current.country, average: (average).toFixed(2) };
 
       timeAverageByUser.push(objUser);
       timeAverageByCountry.push(objCountry);
       continue;
     }
-    objUser = { id: current.id, average: 0 }
-    objCountry = { country: current.country, average: 0 };
+    objUser = { id: current.id, average: (0).toFixed(2) }
+    objCountry = { country: current.country, average: (0).toFixed(2) };
 
     timeAverageByUser.push(objUser);
     timeAverageByCountry.push(objCountry);

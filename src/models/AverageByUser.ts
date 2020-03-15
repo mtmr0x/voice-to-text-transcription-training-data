@@ -1,4 +1,4 @@
 export type AverageByUser = {
   id: number;
-  average: number;
+  average: string;
 };
